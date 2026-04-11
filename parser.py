@@ -22,6 +22,14 @@ class FutoshikiInput:
             f"H={self.h_constraints}\n"
             f"V={self.v_constraints}"
         )
+    def get_givens(self): 
+        givens = []
+        for i in range(self.N):
+            for j in range(self.N):
+                val = self.grid[i][j]
+                if val != 0:
+                    givens.append((i, j, val))          
+        return givens
     def get_lessH_facts(self):
         H = self.h_constraints
         lessH_facts = set() 
