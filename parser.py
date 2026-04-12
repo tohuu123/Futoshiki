@@ -1,6 +1,5 @@
 from typing import List
-
-# Input problem class
+from Brute_force import *
 
 class FutoshikiInput:
     def __init__(
@@ -182,7 +181,11 @@ def parse_futoshiki(filepath: str):
 
 # ---- Debug ----
 if __name__ == "__main__":
-    data = parse_futoshiki("Source/Inputs/input-01.txt")
-
-    print("Parsed result:")
-    print(data)     
+    futo = parse_futoshiki("Source/Inputs/input-01.txt")
+    output_file = "output-01.txt"
+    
+    if brute_force(futo):
+        print("Solved!\n")
+        print_output(futo, output_file)
+    else:
+        print("No solution!")
