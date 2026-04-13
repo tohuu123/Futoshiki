@@ -1,41 +1,3 @@
-class Futoshiki:
-    def __init__(self, N, grid, h_cons, v_cons):
-        self.N = N
-        self.grid = grid
-        self.h_cons = h_cons
-        self.v_cons = v_cons
-
-
-def read_input(filename):
-    lines = []
-    with open(filename, 'r') as f:
-        for line in f:
-            line = line.split('#')[0].strip()
-            if line:
-                lines.append(line)
-
-    idx = 0
-    N = int(lines[idx])
-    idx += 1
-
-    grid = []
-    for _ in range(N):
-        grid.append(list(map(int, lines[idx].split(','))))
-        idx += 1
-
-    h_cons = []
-    for _ in range(N):
-        h_cons.append(list(map(int, lines[idx].split(','))))
-        idx += 1
-
-    v_cons = []
-    for _ in range(N - 1):
-        v_cons.append(list(map(int, lines[idx].split(','))))
-        idx += 1
-
-    return Futoshiki(N, grid, h_cons, v_cons)
-
-
 def is_valid(futo, full_check=False):
     N = futo.N
 
@@ -65,7 +27,7 @@ def is_valid(futo, full_check=False):
 
     for row in range(N):
         for col in range(N - 1):
-            cons = futo.h_cons[row][col]
+            cons = futo.h_constraints[row][col]
             left = futo.grid[row][col]
             right = futo.grid[row][col + 1]
             if left == 0 or right == 0:
@@ -77,7 +39,7 @@ def is_valid(futo, full_check=False):
 
     for row in range(N - 1):
         for col in range(N):
-            cons = futo.v_cons[row][col]
+            cons = futo.v_constraints[row][col]
             up = futo.grid[row][col]
             down = futo.grid[row + 1][col]
             if up == 0 or down == 0:
@@ -171,45 +133,3 @@ def backtracking(futo):
     return False
 
 
-def print_output(futo, filename):
-    with open(filename, 'w') as f:
-        for i in range(futo.N):
-            line = ""
-            for j in range(futo.N):
-                line += str(futo.grid[i][j])
-                if j < futo.N - 1:
-                    if futo.h_cons[i][j] == 1:
-                        line += " < "
-                    elif futo.h_cons[i][j] == -1:
-                        line += " > "
-                    else:
-                        line += "   "
-            print(line)
-            f.write(line + "\n")
-
-            if i < futo.N - 1:
-                line = ""
-                for j in range(futo.N):
-                    if futo.v_cons[i][j] == 1:
-                        line += "^"
-                    elif futo.v_cons[i][j] == -1:
-                        line += "v"
-                    else:
-                        line += " "
-                    if j < futo.N - 1:
-                        line += "   "
-                print(line)
-                f.write(line + "\n")
-
-
-if __name__ == "__main__":
-    input_file = "Source/Inputs/input-01.txt"
-    output_file = "output-01.txt"
-
-    futo = read_input(input_file)
-
-    if backtracking(futo):
-        print("Solved!\n")
-        print_output(futo, output_file)
-    else:
-        print("No solution!")
