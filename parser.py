@@ -1,5 +1,6 @@
 from typing import List
-from Bruteforce import *
+
+# Input problem class
 
 class FutoshikiInput:
     def __init__(
@@ -27,7 +28,7 @@ class FutoshikiInput:
             for j in range(self.N):
                 val = self.grid[i][j]
                 if val != 0:
-                    givens.append((i + 1, j + 1, val))
+                    givens.append((i, j, val))          
         return givens
     def get_lessH_facts(self):
         H = self.h_constraints
@@ -35,7 +36,7 @@ class FutoshikiInput:
         for i in range(len(H)):
             for j in range(len(H[i])):
                 if H[i][j] == 1:
-                   lessH_facts.add((i + 1, j + 1))
+                   lessH_facts.add((i, j))
         return lessH_facts
     def get_greaterH_facts(self):
         H = self.h_constraints
@@ -43,7 +44,7 @@ class FutoshikiInput:
         for i in range(len(H)):
             for j in range(len(H[i])):
                 if H[i][j] == -1:
-                   lessH_facts.add((i + 1, j + 1))
+                   lessH_facts.add((i, j))
         return lessH_facts
     def get_lessV_facts(self):
         V = self.v_constraints
@@ -51,7 +52,7 @@ class FutoshikiInput:
         for i in range(len(V)):
             for j in range(len(V[i])):
                 if V[i][j] == 1:
-                   lessV_facts.add((i + 1, j + 1))
+                   lessV_facts.add((i, j))
         return lessV_facts
     def get_greaterV_facts(self):
         V = self.v_constraints
@@ -59,7 +60,7 @@ class FutoshikiInput:
         for i in range(len(V)):
             for j in range(len(V[i])):
                 if V[i][j] == -1:
-                   greaterV_facts.add((i + 1, j + 1))
+                   greaterV_facts.add((i, j))
         return greaterV_facts
 
 def _clean_lines(filepath: str):
@@ -123,7 +124,6 @@ def _extract_data_lines(lines: List[str]) -> List[str]:
         data_lines.append(line)
     return data_lines
 
-# only check input
 def check_futoshiki(header, data_lines): 
     if not data_lines:
         raise ValueError("Input file does not contain any data rows")
@@ -186,3 +186,11 @@ def parse_futoshiki(filepath: str):
         idx += 1
 
     return FutoshikiInput(n, grid, h_constraints, v_constraints)
+
+
+# ---- Debug ----
+if __name__ == "__main__":
+    data = parse_futoshiki("Source/Inputs/input-01.txt")
+
+    print("Parsed result:")
+    print(data)     

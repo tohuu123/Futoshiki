@@ -1,7 +1,7 @@
 from __future__ import annotations
 from itertools import product as iproduct
 from typing import List, Set, FrozenSet, Tuple
-from Source.ForwardChaining import ForwardChainingEngine
+from ForwardChaining import ForwardChainingEngine
 # Define Literal
 class Literal():      
     def __init__(self, pred: str, args: Tuple, negated: bool = False):
