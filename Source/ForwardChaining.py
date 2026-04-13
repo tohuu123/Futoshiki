@@ -114,31 +114,33 @@ class ForwardChainingEngine:
             print(f"Detected empty domain at cells: {cells}")
 
     def run_inference(self, stop_on_conflict: bool = False):
-        """Main Forward Chaining"""
+        """Forward Chaining"""
         self.conflicts = []
         self.empty_domain_cells = []
+        self.count = {rule.rule_id: len(rule.premises) for rule in self.ground_KB}
+
         while self.agenda:
             p = self.agenda.popleft()
-
-            # Detect X and Not_X contradictions.
+            if p in self.inferred:
+                 continue
             self._record_conflict(p)
+            
             if stop_on_conflict:
                 if self.has_conflicts() or self.has_empty_domain():
                     self._print_detected_issues()
                     return (False, self.inferred)
-
-            if p not in self.inferred:
-                self.inferred.add(p)
-                # mapping
-                for rule_id in self.premise_to_rules[p]:
-                    self.count[rule_id] -= 1
-                    if self.count[rule_id] == 0:
-                        conclusion = self.ground_KB[rule_id].conclusion
-                        self._record_conflict(conclusion)
-                        if stop_on_conflict and self.has_conflicts():
-                            self._print_detected_issues()
-                            return (not self.has_conflicts(), self.inferred)
-                        self.agenda.append(conclusion)
+            
+            self.inferred.add(p)
+            # mapping
+            for rule_id in self.premise_to_rules[p]:
+                self.count[rule_id] -= 1
+                if self.count[rule_id] == 0:
+                    conclusion = self.ground_KB[rule_id].conclusion
+                    self._record_conflict(conclusion)
+                    if stop_on_conflict and self.has_conflicts():
+                        self._print_detected_issues()
+                        return (not self.has_conflicts(), self.inferred)
+                    self.agenda.append(conclusion)
         final_conflict = self.has_conflicts() or self.has_empty_domain()
         if final_conflict:
             self._print_detected_issues()
