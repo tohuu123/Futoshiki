@@ -1,7 +1,7 @@
 from __future__ import annotations
 from itertools import product as iproduct
 from typing import List, Set, FrozenSet, Tuple
-from ForwardChaining import ForwardChainingEngine
+from Source.ForwardChaining import ForwardChainingEngine
 # Define Literal
 class Literal():      
     def __init__(self, pred: str, args: Tuple, negated: bool = False):
@@ -46,7 +46,7 @@ class GroundKBGenerator:
         self.cells  = [(i, j) for i in self.domain for j in self.domain]
         self._clauses: List[Clause] = [] # cnf
         # i use ForwardChaining engine first
-        self.engine = ForwardChainingEngine()
+        self.ForwardChainingEngine = ForwardChainingEngine()
 
     def _add_initial_facts(
         self,
@@ -73,7 +73,7 @@ class GroundKBGenerator:
         for (i, j) in greaterV:
             facts.append(f"GreaterV_{i}_{j}")
 
-        self.engine.add_initial_facts(facts)
+        self.ForwardChainingEngine.add_initial_facts(facts)
     # def _add(self, lits: List[Literal]):
     #     "Adding a clause"
     #     self._clauses.append(frozenset(lits))
@@ -83,7 +83,7 @@ class GroundKBGenerator:
             for target in self.domain:
                  for v in self.domain: 
                     if (v != target): 
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                                 premises=[f"Val_{i}_{j}_{target}"],
                                 conclusion=f"Not_Val_{i}_{j}_{v}"
                     )
@@ -93,7 +93,7 @@ class GroundKBGenerator:
                 for v2 in self.domain:  
                     if v1 < v2: # like v1 khac v2
                         # self._add([_Val(i, j, v1, neg=True), _Val(i, j, v2, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                             premises=[f"Val_{i}_{j}_{v1}"],
                             conclusion=f"Not_Val_{i}_{j}_{v2}"
                         )
@@ -105,7 +105,7 @@ class GroundKBGenerator:
                     if j1 < j2:
                         # self._add([_Val(i, j1, v, neg=True),
                         #           _Val(i, j2, v, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                                 premises=[f"Val_{i}_{j1}_{v}"],
                                 conclusion=f"Not_Val_{i}_{j2}_{v}"
                             )
@@ -117,7 +117,7 @@ class GroundKBGenerator:
                     if i1 < i2:
                         # self._add([_Val(i1, j, v, neg=True),
                         #           _Val(i2, j, v, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                                 premises=[f"Val_{i1}_{j}_{v}"],
                                 conclusion=f"Not_Val_{i2}_{j}_{v}"
                             )
@@ -129,7 +129,7 @@ class GroundKBGenerator:
             for v2 in self.domain:
                 if v2 != v:
                     # self._add([_Val(i, j, v2, neg=True)])
-                    self.engine.add_rule(
+                    self.ForwardChainingEngine.add_rule(
                                 premises=[f"Val_{i}_{j}_{v}"],
                                 conclusion=f"Not_Val_{i}_{j}_{v2}"
                     )
@@ -143,7 +143,7 @@ class GroundKBGenerator:
                     if v1 >= v2:   # vi phạm v1 < v2
                         # self._add([_Val(i, j, v1, neg=True),
                         #           _Val(i, j+1, v2, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                             premises=[f"LessH_{i}_{j}", f"Val_{i}_{j}_{v1}"],
                             conclusion=f"Not_Val_{i}_{j+1}_{v2}"
                         )
@@ -158,7 +158,7 @@ class GroundKBGenerator:
                     if v1 <= v2:   
                         # self._add([_Val(i, j,   v1, neg=True),
                         #           _Val(i, j+1, v2, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                             premises=[f"GreaterH_{i}_{j}", f"Val_{i}_{j}_{v1}"],
                             conclusion=f"Not_Val_{i}_{j+1}_{v2}"
                         )                        
@@ -173,7 +173,7 @@ class GroundKBGenerator:
                     if v1 >= v2:
                         # self._add([_Val(i, j, v1, neg=True),
                         #           _Val(i+1, j, v2, neg=True)])
-                        self.engine.add_rule(
+                        self.ForwardChainingEngine.add_rule(
                             premises=[f"LessV_{i}_{j}", f"Val_{i}_{j}_{v1}"],
                             conclusion=f"Not_Val_{i+1}_{j}_{v2}"
                         )
@@ -186,7 +186,7 @@ class GroundKBGenerator:
                    if v1 <= v2:
                         # self._add([_Val(i,  j, v1, neg=True),
                         #           _Val(i+1, j, v2, neg=True)])
-                        self.engine.add_rule (
+                        self.ForwardChainingEngine.add_rule (
                             premises=[f"GreaterV_{i}_{j}", f"Val_{i}_{j}_{v1}"],
                             conclusion=f"Not_Val_{i+1}_{j}_{v2}"
                         )
