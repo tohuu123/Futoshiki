@@ -1,4 +1,5 @@
 from collections import deque, defaultdict 
+from KBgenerator import *
 
 class Rule:
     def __init__(self, rule_id: int, premises: list, conclusion: str):
@@ -145,3 +146,26 @@ class ForwardChainingEngine:
         if final_conflict:
             self._print_detected_issues()
         return (not final_conflict, self.inferred)
+
+def solve_futoshiki_forward_chaining(futo):
+    N        = futo.N
+    givens   = futo.get_givens()
+    lessH    = futo.get_lessH_facts()
+    greaterH = futo.get_greaterH_facts()
+    lessV    = futo.get_lessV_facts()
+    greaterV = futo.get_greaterV_facts()
+
+    gen = GroundKBGenerator(N)
+    fc_engine = ForwardChainingEngine()
+
+    gen.populate_fc_engine(
+        engine=fc_engine,
+        givens=givens,
+        lessH=lessH,
+        greaterH=greaterH,
+        lessV=lessV,
+        greaterV=greaterV
+    )
+
+    success, inferred_facts = fc_engine.run_inference(stop_on_conflict=True)
+    return success, inferred_facts

@@ -1,28 +1,17 @@
-from KBgenerator import GroundKBGenerator
+from Solver import Solver
 from parser import parse_futoshiki
-from Bruteforce import *
-from Backtracking import *
-from Helper import print_output
+from KBgenerator import GroundKBGenerator, print_ground_kb
 
-if __name__ == "__main__": 
-    inputfile = "Inputs/input-01.txt"
+if __name__ == "__main__":
+    inputfile  = "Inputs/input-01.txt"
     outputfile = "output-01.txt"
-
     futo = parse_futoshiki(inputfile)
-    lessH = futo.get_lessH_facts()
-    greaterH = futo.get_greaterH_facts()
-    lessV = futo.get_lessV_facts()
-    greaterV = futo.get_greaterV_facts()
-    givens = futo.get_givens()
 
-    # TESTING Forward Chaining 
-    kb = GroundKBGenerator(futo.N)
-    kb.build(givens, lessH, greaterH, lessV, greaterV)
-    print(kb.ForwardChainingEngine.run_inference())
+    # ground KB gneration from FOL axioms
+    gen = GroundKBGenerator(futo.N)
+    kb  = gen.generate_full_ground_kb(futo)
+    print_ground_kb(kb)
 
-    # TESTING brute_force and backtracking
-    brute_force(futo)
-    # backtracking(futo)
-    print_output(futo, outputfile)
-
-
+    # solve using different methods
+    solver = Solver(futo)
+    result = solver.compare_all(outputfile)
