@@ -106,3 +106,81 @@ def print_output(futo, filename):
 
                 print(line)
                 f.write(line + "\n")
+
+def print_console(futo):
+    for i in range(futo.N):
+        line = ""
+        for j in range(futo.N):
+            line += str(futo.grid[i][j])
+
+            if j < futo.N - 1:
+                if futo.h_constraints[i][j] == 1:
+                    line += " < "
+                elif futo.h_constraints[i][j] == -1:
+                    line += " > "
+                else:
+                    line += "   "
+
+        print(line)
+
+        if i < futo.N - 1:
+            line = ""
+            for j in range(futo.N):
+                if futo.v_constraints[i][j] == 1:
+                    line += "^"
+                elif futo.v_constraints[i][j] == -1:
+                    line += "v"
+                else:
+                    line += " "
+
+                if j < futo.N - 1:
+                    line += "   "
+
+            print(line)
+
+def print_inference_results(inferred_facts, N):
+    positive_vals = []
+    negated_vals = []
+    other_facts = []
+
+    for fact in sorted(list(inferred_facts)):
+        if fact.startswith("Not_Val_"):
+            negated_vals.append(fact)
+        elif fact.startswith("Val_"):
+            positive_vals.append(fact)
+        else:
+            other_facts.append(fact)
+
+    cell_domains = {}
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            pos_v = [int(f.split("_")[3]) for f in positive_vals if f.startswith(f"Val_{i}_{j}_")]
+            if pos_v:
+                cell_domains[(i, j)] = pos_v
+            else:
+                excluded = {int(f.split("_")[4]) for f in negated_vals if f.startswith(f"Not_Val_{i}_{j}_")}
+                cell_domains[(i, j)] = [v for v in range(1, N + 1) if v not in excluded]
+
+    sep = "=" * 70
+    print(sep)
+    print(f"INFERENCE RESULTS (Size {N}x{N})")
+    print(sep)
+
+    print(f"\n[Positive Val facts] ({len(positive_vals)} facts)")
+    for f in positive_vals:
+        print(f"  + {f}")
+
+    print("\n[Cell domains after inference]")
+    for (i, j), domain in sorted(cell_domains.items()):
+        status = "pinned" if len(domain) == 1 else ""
+        print(f"  Cell({i},{j}): {domain}  {status}")
+
+    print(f"\n[Negated Val facts / eliminations] ({len(negated_vals)} facts)")
+    for f in negated_vals:
+        print(f"  - {f}")
+    print(f"\n[Other inferred facts] ({len(other_facts)} facts)")
+    for f in other_facts:
+        print(f"  ~ {f}")
+
+    print(f"\nTotal inferred facts: {len(inferred_facts)}")
+    print(sep)

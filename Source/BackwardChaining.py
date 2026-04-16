@@ -8,14 +8,12 @@ from typing import Callable, Dict, Generator, Iterable, List, Optional, Sequence
 Term = Union["Variable", "Structure", int, str]
 Substitution = Dict[str, Term]
 
-
 @dataclass(frozen=True)
 class Variable:
 	name: str
 
 	def __str__(self) -> str:
 		return self.name
-
 
 @dataclass(frozen=True)
 class Structure:
@@ -47,7 +45,6 @@ def term_to_string(term: Term) -> str:
 	if isinstance(term, (Variable, Structure)):
 		return str(term)
 	return str(term)
-
 
 def _split_top_level(text: str, sep: str = ",") -> List[str]:
 	parts: List[str] = []
@@ -326,14 +323,22 @@ class BackwardChainingEngine:
 
 		return answers
 
-	def query_cell(self, i: int, j: int) -> List[int]:
+	def query_cell(self, i: int, j: int, verbose: bool = True) -> List[int]:
+		if verbose:
+			print(f"Querying cell ({i}, {j}) → Val({i}, {j}, V)?")
 		answers = self.query(Structure("Val", (i, j, Variable("V"))))
 		values: Set[int] = set()
 		for answer in answers:
 			value = answer.get("V")
 			if isinstance(value, int):
 				values.add(value)
-		return sorted(values)
+		result = sorted(values)
+		if verbose:
+			if result:
+				print(f"Cell ({i}, {j}) candidates: {result}")
+			else:
+				print(f"Cell ({i}, {j}) → no valid candidates found")
+		return result
 
 	def sld_resolve(
 		self,
