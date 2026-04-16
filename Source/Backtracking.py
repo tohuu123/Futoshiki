@@ -1,5 +1,6 @@
 from Helper import is_valid
 
+
 def get_candidates(futo, row, col):
     if futo.grid[row][col] != 0:
         return [futo.grid[row][col]]
@@ -66,18 +67,25 @@ def has_empty_domain(futo):
     return False
 
 
-def backtracking(futo):
+def backtracking(futo, stats=None):
+    if stats is not None:
+        stats["expansions"] += 1
+
     cell = select_unassigned_cell_mrv(futo)
     if cell is None:
         return is_valid(futo, full_check=True)
 
     row, col = cell
     candidates = order_values_lcv(futo, row, col)
+    if stats is not None:
+        stats["generated"] += len(candidates)
+
     for val in candidates:
         futo.grid[row][col] = val
-        if not has_empty_domain(futo) and backtracking(futo):
+        if not has_empty_domain(futo) and backtracking(futo, stats):
             return True
         futo.grid[row][col] = 0
+
+    if stats is not None:
+        stats["backtracks"] += 1
     return False
-
-

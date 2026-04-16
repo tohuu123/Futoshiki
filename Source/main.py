@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 
+from Benchmark import run_benchmark
 from Solver import Solver, Method
 from parser import parse_futoshiki
 
@@ -21,16 +22,44 @@ def solve_single(args):
     result.print_result(args.output)
 
 
-def build_parser():
-    parser = argparse.ArgumentParser(description="Futoshiki main package + A* integration")
-    p_solve = parser.add_subparsers(dest="command", required=True)
+def benchmark_cmd(args):
+    rows = run_benchmark(
+        args.input_dir,
+        args.csv,
+        args.summary,
+        charts_dir=args.charts_dir,
+        max_n_bruteforce=args.max_n_bruteforce,
+        max_n_backtracking=args.max_n_backtracking,
+        include_backward=args.include_backward,
+    )
+    print(f"Saved CSV benchmark to: {args.csv}")
+    if args.summary:
+        print(f"Saved summary to: {args.summary}")
+    if args.charts_dir:
+        print(f"Saved charts to: {args.charts_dir}")
+    print(f"rows={len(rows)}")
 
-    solve = p_solve.add_parser("solve", help="Solve a single puzzle")
-    solve.add_argument("--input", default="Inputs/input-01.txt")
-    solve.add_argument("--algorithm", choices=["bruteforce", "backtracking", "backward_chaining", "forward_chaining", "astar"], default="astar")
-    solve.add_argument("--heuristic", choices=["h0", "hrc"], default="hrc")
-    solve.add_argument("--output", default="output-01.txt")
-    solve.set_defaults(func=solve_single)
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="Futoshiki main package + A* + benchmark integration")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_solve = sub.add_parser("solve", help="Solve a single puzzle")
+    p_solve.add_argument("--input", default="Inputs/input-01.txt")
+    p_solve.add_argument("--algorithm", choices=["bruteforce", "backtracking", "backward_chaining", "forward_chaining", "astar"], default="astar")
+    p_solve.add_argument("--heuristic", choices=["h0", "hrc"], default="hrc")
+    p_solve.add_argument("--output", default="output-01.txt")
+    p_solve.set_defaults(func=solve_single)
+
+    p_bench = sub.add_parser("benchmark", help="Run benchmark on all inputs")
+    p_bench.add_argument("--input-dir", default="Inputs")
+    p_bench.add_argument("--csv", default="Docs/benchmark_results.csv")
+    p_bench.add_argument("--summary", default="Docs/benchmark_summary.md")
+    p_bench.add_argument("--charts-dir", default="Docs/charts")
+    p_bench.add_argument("--max-n-bruteforce", type=int, default=5, help="Skip brute-force above this board size")
+    p_bench.add_argument("--max-n-backtracking", type=int, default=5, help="Skip backtracking above this board size")
+    p_bench.add_argument("--include-backward", action="store_true", help="Also benchmark backward chaining")
+    p_bench.set_defaults(func=benchmark_cmd)
 
     return parser
 
