@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from statistics import mean
 from typing import Dict, List
 
+from Helper import is_valid, print_output
 from parser import parse_futoshiki
 from Solver import Solver, Method
 
@@ -14,16 +16,20 @@ def run_benchmark(
     csv_path: str | Path,
     summary_path: str | Path | None = None,
     charts_dir: str | Path | None = None,
+    outputs_dir: str | Path | None = None,
     max_n_bruteforce: int | None = 5,
     max_n_backtracking: int | None = 5,
-    include_backward: bool = False,
+    include_backward: bool = True,
 ):
     input_dir = Path(input_dir)
     csv_path = Path(csv_path)
+    outputs_path = Path(outputs_dir) if outputs_dir is not None else None
     files = sorted(input_dir.glob("input-*.txt"))
     if not files:
         raise ValueError(f"No input files found in {input_dir}")
     csv_path.parent.mkdir(parents=True, exist_ok=True)
+    if outputs_path is not None:
+        outputs_path.mkdir(parents=True, exist_ok=True)
 
     benchmark_methods = [Method.BRUTE_FORCE, Method.BACKTRACKING, Method.FORWARD_CHAINING, Method.ASTAR]
     if include_backward:
@@ -57,6 +63,9 @@ def run_benchmark(
                     "notes": result.notes,
                 }
             )
+            if outputs_path is not None and result.success and is_valid(result.futo, full_check=True):
+                output_file = _benchmark_output_name(file_path, method)
+                print_output(result.futo, output_file, output_dir=str(outputs_path), echo_console=False)
 
     with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
@@ -100,6 +109,13 @@ def _skipped_row(method: Method, input_file: str, n: int, note: str) -> Dict[str
         "inferences": 0,
         "notes": note,
     }
+
+
+def _benchmark_output_name(file_path: Path, method: Method) -> str:
+    match = re.match(r"^input-(\d+)$", file_path.stem)
+    if match:
+        return f"output-{match.group(1)}__{method.name.lower()}.txt"
+    return f"output-{file_path.stem}__{method.name.lower()}.txt"
 
 
 def summarize_rows(rows: List[Dict[str, object]]) -> Dict[str, Dict[str, float]]:
