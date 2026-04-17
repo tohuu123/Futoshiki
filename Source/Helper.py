@@ -68,9 +68,9 @@ def is_valid(futo, full_check=False):
 
     return True
 
-def print_output(futo, filename):
-    fullpath = os.path.join("Outputs", filename)
-    os.makedirs("Outputs", exist_ok=True)
+def print_output(futo, filename, output_dir="Outputs", echo_console=True):
+    fullpath = os.path.join(output_dir, filename)
+    os.makedirs(output_dir, exist_ok=True)
     with open(fullpath, 'w') as f:
         for i in range(futo.N):
 
@@ -87,7 +87,8 @@ def print_output(futo, filename):
                     else:
                         line += "   "
 
-            print(line)
+            if echo_console:
+                print(line)
             f.write(line + "\n")
 
             # Vertical
@@ -104,7 +105,8 @@ def print_output(futo, filename):
                     if j < futo.N - 1:
                         line += "   "
 
-                print(line)
+                if echo_console:
+                    print(line)
                 f.write(line + "\n")
 
 def print_console(futo):

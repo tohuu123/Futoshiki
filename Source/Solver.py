@@ -95,10 +95,16 @@ class Solver:
         notes = ""
 
         if method == Method.BRUTE_FORCE:
-            success = brute_force(futo)
+            stats = {"expansions": 0}
+            success = brute_force(futo, stats)
+            expansions = stats["expansions"]
 
         elif method == Method.BACKTRACKING:
-            success = backtracking(futo)
+            stats = {"expansions": 0, "generated": 0, "backtracks": 0}
+            success = backtracking(futo, stats)
+            expansions = stats["expansions"]
+            generated = stats["generated"]
+            backtracks = stats["backtracks"]
 
         elif method == Method.BACKWARD_CHAINING:
             success = solve_futoshiki_with_backward_chaining(futo)
@@ -136,4 +142,4 @@ class Solver:
         )
 
     def solve(self, method: Method, heuristic_name: str = "hrc") -> SolveResult:
-        return self._run(method, heuristic_name)
+        return self._run(method, heuristic_name=heuristic_name)
