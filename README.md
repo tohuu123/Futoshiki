@@ -3,10 +3,9 @@
 ## Prerequisites
 
 ```bash
-cd /Users/thaihoang78/Project/futoshiki
+python -m venv .venv
 source .venv/bin/activate      
-pip install matplotlib         
-pip install PyQt6
+pip install -r requirements.txt
 ```
 
 ---
