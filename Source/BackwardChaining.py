@@ -323,7 +323,7 @@ class BackwardChainingEngine:
 
 		return answers
 
-	def query_cell(self, i: int, j: int, verbose: bool = True) -> List[int]:
+	def query_cell(self, i: int, j: int, verbose: bool = False) -> List[int]:
 		if verbose:
 			print(f"Querying cell ({i}, {j}) → Val({i}, {j}, V)?")
 		answers = self.query(Structure("Val", (i, j, Variable("V"))))

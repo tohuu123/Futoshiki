@@ -31,7 +31,7 @@ def benchmark_cmd(args):
         max_n_bruteforce=args.max_n_bruteforce,
         max_n_backtracking=args.max_n_backtracking,
         include_backward=args.include_backward,
-        outputs_dir="Source/Outputs" if args.write_outputs else None,
+        outputs_dir="Outputs" if args.write_outputs else None,
     )
     print(f"Saved CSV benchmark to: {args.csv}")
     if args.summary:
@@ -57,7 +57,7 @@ def build_parser():
     p_bench.add_argument("--csv", default="Docs/benchmark_results.csv")
     p_bench.add_argument("--summary", default="Docs/benchmark_summary.md")
     p_bench.add_argument("--charts-dir", default="Docs/charts")
-    p_bench.add_argument("--max-n-bruteforce", type=int, default=5, help="Skip brute-force above this board size")
+    p_bench.add_argument("--max-n-bruteforce", type=int, default=4, help="Skip brute-force for N >= 5 (i.e. above 4x4)")
     p_bench.add_argument("--max-n-backtracking", type=int, default=5, help="Skip backtracking above this board size")
     p_bench.add_argument(
         "--include-backward",
