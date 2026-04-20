@@ -29,7 +29,7 @@ try:
         QVBoxLayout,
         QWidget,
     )
-except ImportError as exc:  # pragma: no cover - runtime dependency
+except ImportError as exc:
     raise SystemExit(
         "PyQt6 is not installed. Install it with `pip install PyQt6` "
         "(or use a PyQt6 version compatible with your Python interpreter)."
@@ -198,7 +198,7 @@ class FutoshikiBoardWidget(QWidget):
         self._givens = set(givens or set())
         self.update()
 
-    def paintEvent(self, event) -> None:  # noqa: N802
+    def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
@@ -302,7 +302,7 @@ class FutoshikiBoardWidget(QWidget):
 
 
 class ArrowComboBox(QComboBox):
-    def paintEvent(self, event) -> None:  # noqa: N802
+    def paintEvent(self, event) -> None:
         super().paintEvent(event)
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
@@ -507,7 +507,7 @@ class MainWindow(QMainWindow):
         self.method_combo.currentIndexChanged.connect(self._sync_heuristic_state)
         self.heuristic_combo = ArrowComboBox()
         self.heuristic_combo.addItem("hrc", "hrc")
-        self.heuristic_combo.addItem("h0", "h0")
+        self.heuristic_combo.addItem("h0 (UCS)", "h0")
         self.heuristic_combo.setCurrentIndex(0)
         method_row.addWidget(self.method_combo, 1)
         method_row.addWidget(self.heuristic_combo)

@@ -613,11 +613,6 @@ Is_builtin = BackwardChainingEngine.is_builtin
 
 
 def solve_futoshiki_with_backward_chaining(futo):
-	"""Solve a Futoshiki grid using backward chaining queries plus DFS search.
-
-	Returns:
-		(success: bool, stats: dict)
-	"""
 	from Helper import is_valid
 
 	stats = BackwardChainingStats()

@@ -1,11 +1,10 @@
 from pathlib import Path
 import os 
 
-# check the solution is valid or not
 def is_valid(futo, full_check=False):
     N = futo.N
 
-    # Row check
+    # row check
     for row in range(N):
         seen = set()
         for col in range(N):
@@ -21,7 +20,7 @@ def is_valid(futo, full_check=False):
         if full_check and len(seen) != N:
             return False
 
-    # Column check
+    # column check
     for col in range(N):
         seen = set()
         for row in range(N):
@@ -37,7 +36,7 @@ def is_valid(futo, full_check=False):
         if full_check and len(seen) != N:
             return False
 
-    # Horizontal constraints
+    # horizontal constraints
     for row in range(N):
         for col in range(N - 1):
             cons = futo.h_constraints[row][col]
@@ -52,7 +51,7 @@ def is_valid(futo, full_check=False):
             if cons == -1 and not (left > right):
                 return False
 
-    # Vertical constraints
+    # vertical constraints
     for row in range(N - 1):
         for col in range(N):
             cons = futo.v_constraints[row][col]
@@ -80,7 +79,7 @@ def print_output(futo, filename, output_dir="Outputs", echo_console=True):
     with open(fullpath, 'w', encoding='utf-8') as f:
         for i in range(futo.N):
 
-            # Row
+            # row
             line = ""
             for j in range(futo.N):
                 line += str(futo.grid[i][j])
@@ -97,7 +96,7 @@ def print_output(futo, filename, output_dir="Outputs", echo_console=True):
                 print(line)
             f.write(line + "\n")
 
-            # Vertical
+            # vertical
             if i < futo.N - 1:
                 line = ""
                 for j in range(futo.N):
@@ -195,7 +194,6 @@ def print_inference_results(inferred_facts, N):
 
 
 def write_inference_results_to_file(inferred_facts, N, filepath):
-    """Write forward chaining inference results to a text file."""
     positive_vals = []
     negated_vals = []
     other_facts = []

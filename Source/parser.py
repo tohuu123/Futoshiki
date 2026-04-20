@@ -63,11 +63,9 @@ class FutoshikiInput:
         return greaterV_facts
 
 def _clean_lines(filepath: str):
-    """Remove comments and empty lines."""
     lines = []
     with open(filepath, "r") as f:
         for line in f:
-            # Remove comments
             line = line.split("#")[0].strip()
             if line:
                 lines.append(line)
@@ -79,11 +77,6 @@ def _parse_row(line: str):
 
 
 def _parse_header(lines: List[str]):
-    """Parse first-line header.
-
-    Supported format:
-    - n,grid_rows,h_rows,v_rows
-    """
     if not lines:
         return None, lines
 
@@ -114,12 +107,11 @@ def _parse_header(lines: List[str]):
 
 
 def _extract_data_lines(lines: List[str]) -> List[str]:
-    """Keep only comma-separated numeric rows, skipping headers"""
     data_lines = []
     for line in lines:
         if "," not in line:
             continue
-        _parse_row(line)  # Validate row format early.
+        _parse_row(line)  # validate row format
         data_lines.append(line)
     return data_lines
 
@@ -146,19 +138,16 @@ def check_futoshiki(header, data_lines):
         raise ValueError("grid_rows must be equal to n")
     return True
 
-# parser function 
 def parse_futoshiki(filepath: str):
     lines = _clean_lines(filepath)
     header, remaining_lines = _parse_header(lines)
     data_lines = _extract_data_lines(remaining_lines)
     
-    # checker function
     check_futoshiki(header, data_lines)
 
     n, grid_rows, h_rows, v_rows = header
     idx = 0
 
-    # ---- GRID ----
     grid = []
     for _ in range(grid_rows):
         row = _parse_row(data_lines[idx])
@@ -167,7 +156,6 @@ def parse_futoshiki(filepath: str):
         grid.append(row)
         idx += 1
 
-    # ---- HORIZONTAL CONSTRAINTS ----
     h_constraints = []
     for _ in range(h_rows):
         row = _parse_row(data_lines[idx])
@@ -176,7 +164,6 @@ def parse_futoshiki(filepath: str):
         h_constraints.append(row)
         idx += 1
 
-    # ---- VERTICAL CONSTRAINTS ----
     v_constraints = []
     for _ in range(v_rows):
         row = _parse_row(data_lines[idx])

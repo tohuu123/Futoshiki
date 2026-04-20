@@ -325,13 +325,11 @@ def write_chart_images(rows: List[Dict[str, object]], charts_dir: str | Path) ->
         plt.savefig(charts_dir / filename, dpi=160)
         plt.close()
 
-    # 4 separate files
     _line_chart('runtime_sec', 'Runtime by input', 'Seconds', 'runtime_by_input.png')
     _line_chart('peak_memory_kb', 'Peak memory by input', 'KB', 'memory_by_input.png')
     _line_chart('expansions', 'Expansions by input', 'Count', 'expansions_by_input.png')
     _line_chart('inferences', 'Inferences by input', 'Count', 'inferences_by_input.png')
 
-    # 1 combined figure with 4 subplots for report convenience
     x = list(range(len(inputs)))
     metric_specs = [
         ('runtime_sec', 'Runtime by input', 'Seconds'),
@@ -357,7 +355,6 @@ def write_chart_images(rows: List[Dict[str, object]], charts_dir: str | Path) ->
     fig.savefig(charts_dir / 'metrics_by_input.png', dpi=160)
     plt.close(fig)
 
-    # Status summary chart
     status_counts = {alg: {'solved': 0, 'failed': 0, 'skipped': 0} for alg in algorithms}
     for row in rows:
         alg = str(row['algorithm'])

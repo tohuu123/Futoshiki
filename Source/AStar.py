@@ -59,7 +59,6 @@ def propagate_constraints(futo, grid):
     while True:
         changed=False
         candidates_map={}
-        # compute candidates and naked singles
         for i in range(n):
             for j in range(n):
                 if grid[i][j]!=0: continue
@@ -72,7 +71,6 @@ def propagate_constraints(futo, grid):
                     changed=True
         if changed:
             continue
-        # hidden singles in rows
         for i in range(n):
             empties=[(i,j) for j in range(n) if grid[i][j]==0]
             if not empties: continue
@@ -87,7 +85,6 @@ def propagate_constraints(futo, grid):
             if changed: break
         if changed:
             continue
-        # hidden singles in cols
         for j in range(n):
             empties=[(i,j) for i in range(n) if grid[i][j]==0]
             if not empties: continue

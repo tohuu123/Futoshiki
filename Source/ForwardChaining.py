@@ -53,7 +53,6 @@ class ForwardChainingEngine:
         domain_by_cell = defaultdict(set)
         negated_by_cell = defaultdict(set)
 
-        # Facts currently inferred by forward chaining.
         for fact in self.inferred:
             parsed = self._parse_val_fact(fact)
             if parsed is None:
@@ -64,7 +63,6 @@ class ForwardChainingEngine:
             if negated:
                 negated_by_cell[key].add(v)
 
-        # Potential values that appear in generated rules.
         for rule in self.ground_KB:
             parsed_conclusion = self._parse_val_fact(rule.conclusion)
             if parsed_conclusion is not None:
