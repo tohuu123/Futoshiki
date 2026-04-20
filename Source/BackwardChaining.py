@@ -33,6 +33,28 @@ class Clause:
 	body: Tuple[Structure, ...]
 
 
+@dataclass
+class BackwardChainingStats:
+	expansions: int = 0
+	generated: int = 0
+	backtracks: int = 0
+	inferences: int = 0
+	queries: int = 0
+	unifications: int = 0
+	builtin_calls: int = 0
+
+	def to_dict(self) -> Dict[str, int]:
+		return {
+			"expansions": self.expansions,
+			"generated": self.generated,
+			"backtracks": self.backtracks,
+			"inferences": self.inferences,
+			"queries": self.queries,
+			"unifications": self.unifications,
+			"builtin_calls": self.builtin_calls,
+		}
+
+
 def is_variable(term: Term) -> bool:
 	return isinstance(term, Variable)
 
@@ -262,9 +284,11 @@ class BackwardChainingEngine:
 		self,
 		clauses: Optional[Iterable[Clause]] = None,
 		max_depth: int = 120,
+		stats: Optional[BackwardChainingStats] = None,
 	):
 		self.clauses: List[Clause] = list(clauses or [])
 		self.max_depth = max_depth
+		self.stats = stats if stats is not None else BackwardChainingStats()
 		self.builtins: Dict[str, Callable[[Structure, Substitution], List[Substitution]]] = {
 			"Diff": self._builtin_diff,
 			"Neq": self._builtin_diff,
@@ -308,6 +332,7 @@ class BackwardChainingEngine:
 		return len(self.query(goal)) > 0
 
 	def query(self, goal: Union[Structure, str]) -> List[Dict[str, object]]:
+		self.stats.queries += 1
 		if isinstance(goal, str):
 			goal = parse_term(goal)
 
@@ -368,18 +393,22 @@ class BackwardChainingEngine:
 
 		goal = applied_goals[0]
 		rest_goals = applied_goals[1:]
+		self.stats.expansions += 1
 
 		if self.is_builtin(goal):
 			for next_theta in self._run_builtin(goal, theta):
+				self.stats.inferences += 1
 				yield from self.sld_resolve(rest_goals, next_theta, depth + 1, branch_visited)
 			return
 
 		for clause in self.clauses:
 			renamed = rename_apart(clause)
+			self.stats.unifications += 1
 			theta1 = unify(goal, renamed.head, theta)
 			if theta1 is None:
 				continue
 
+			self.stats.inferences += 1
 			new_goals = list(renamed.body) + rest_goals
 			new_goals = [apply_substitution(g, theta1) for g in new_goals]
 			yield from self.sld_resolve(new_goals, theta1, depth + 1, branch_visited)
@@ -390,6 +419,7 @@ class BackwardChainingEngine:
 		return sorted(found.keys())
 
 	def _run_builtin(self, goal: Structure, theta: Substitution) -> List[Substitution]:
+		self.stats.builtin_calls += 1
 		fn = self.builtins.get(goal.name)
 		if fn is None:
 			return []
@@ -465,8 +495,9 @@ def build_futoshiki_engine(
 	greater_h: Sequence[Tuple[int, int]],
 	less_v: Sequence[Tuple[int, int]],
 	greater_v: Sequence[Tuple[int, int]],
+	stats: Optional[BackwardChainingStats] = None,
 ) -> BackwardChainingEngine:
-	engine = BackwardChainingEngine()
+	engine = BackwardChainingEngine(stats=stats)
 
 	for i in range(1, n + 1):
 		for j in range(1, n + 1):
@@ -581,9 +612,15 @@ Is_fact = BackwardChainingEngine.is_fact
 Is_builtin = BackwardChainingEngine.is_builtin
 
 
-def solve_futoshiki_with_backward_chaining(futo) -> bool:
-	"""Solve a Futoshiki grid using backward-chaining guided domains and DFS."""
+def solve_futoshiki_with_backward_chaining(futo):
+	"""Solve a Futoshiki grid using backward chaining queries plus DFS search.
+
+	Returns:
+		(success: bool, stats: dict)
+	"""
 	from Helper import is_valid
+
+	stats = BackwardChainingStats()
 
 	def _find_mrv_cell_and_candidates():
 		givens = futo.get_givens()
@@ -594,6 +631,7 @@ def solve_futoshiki_with_backward_chaining(futo) -> bool:
 			futo.get_greaterH_facts(),
 			futo.get_lessV_facts(),
 			futo.get_greaterV_facts(),
+			stats=stats,
 		)
 
 		best_cell = None
@@ -618,6 +656,7 @@ def solve_futoshiki_with_backward_chaining(futo) -> bool:
 		return best_cell, best_candidates or []
 
 	def _dfs() -> bool:
+		stats.expansions += 1
 		cell, candidates = _find_mrv_cell_and_candidates()
 		if cell is None:
 			return is_valid(futo, full_check=True)
@@ -626,12 +665,20 @@ def solve_futoshiki_with_backward_chaining(futo) -> bool:
 		if not candidates:
 			return False
 
+		stats.generated += len(candidates)
 		for value in candidates:
 			futo.grid[row][col] = value
 			if is_valid(futo, full_check=False) and _dfs():
 				return True
 			futo.grid[row][col] = 0
 
+		stats.backtracks += 1
 		return False
 
-	return _dfs()
+	success = _dfs()
+	stats_dict = stats.to_dict()
+	stats_dict["notes"] = (
+		"Backward chaining inferences count successful SLD/builtin steps; "
+		"expansions count DFS search nodes."
+	)
+	return success, stats_dict

@@ -107,8 +107,21 @@ class Solver:
             backtracks = stats["backtracks"]
 
         elif method == Method.BACKWARD_CHAINING:
-            success = solve_futoshiki_with_backward_chaining(futo)
-            notes = "Backward chaining currently returns only success/failure metrics."
+            success, bc_stats = solve_futoshiki_with_backward_chaining(futo)
+            expansions = bc_stats.get("expansions", 0)
+            generated = bc_stats.get("generated", 0)
+            backtracks = bc_stats.get("backtracks", 0)
+            inferences = bc_stats.get("inferences", 0)
+            notes = bc_stats.get("notes", "")
+            extra = []
+            if bc_stats.get("queries") is not None:
+                extra.append(f"queries={bc_stats['queries']}")
+            if bc_stats.get("unifications") is not None:
+                extra.append(f"unifications={bc_stats['unifications']}")
+            if bc_stats.get("builtin_calls") is not None:
+                extra.append(f"builtin_calls={bc_stats['builtin_calls']}")
+            if extra:
+                notes = (notes + " | " if notes else "") + ", ".join(extra)
 
         elif method == Method.FORWARD_CHAINING:
             success, inferred = solve_futoshiki_forward_chaining(futo)
