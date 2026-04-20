@@ -24,3 +24,4 @@ Docs/benchmark_summary.md
 *.txt
 !input.txt
 !Source/Inputs/*.txt
+!requirements.txt/
