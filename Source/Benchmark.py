@@ -9,7 +9,7 @@ from typing import Dict, List
 
 from parser import parse_futoshiki
 from Solver import Solver, Method
-from Helper import print_output
+from Helper import print_output, write_inference_results_to_file
 
 
 METRIC_FIELDS = [
@@ -114,12 +114,29 @@ def run_benchmark(
                     writer.writerow(row)
                     f.flush()
 
-                    if outputs_dir is not None and result.success and method != Method.FORWARD_CHAINING:
+                    if outputs_dir is not None and result.success and method not in (Method.FORWARD_CHAINING, Method.BACKWARD_CHAINING):
                         try:
-                            out_name = f"{Path(file_path.name).stem}__{method.name.lower()}.txt"
+                            stem = Path(file_path.name).stem.replace("input-", "output-")
+                            out_name = f"{stem}__{method.name.lower()}.txt"
                             print_output(result.futo, out_name, output_dir=str(outputs_dir), echo_console=False)
                         except Exception as exc:
                             row["notes"] = (row["notes"] + " | " if row["notes"] else "") + f"output write failed: {exc}"
+
+                    if outputs_dir is not None and method in (Method.FORWARD_CHAINING, Method.BACKWARD_CHAINING):
+                        try:
+                            inferences_dir = Path(outputs_dir) / "Inferences"
+                            stem = Path(file_path.name).stem.replace("input-", "output-")
+                            inf_name = f"{stem}__{method.name.lower()}.txt"
+                            if method == Method.FORWARD_CHAINING and result.inferred is not None:
+                                write_inference_results_to_file(result.inferred, futo.N, inferences_dir / inf_name)
+                            elif method == Method.BACKWARD_CHAINING:
+                                bc_stats = {
+                                    k: row[k] for k in ("expansions", "generated", "backtracks", "inferences")
+                                }
+                                bc_stats["notes"] = str(row.get("notes", ""))
+                                _write_bc_inference_file(inferences_dir / inf_name, file_path.name, futo.N, bc_stats)
+                        except Exception as exc:
+                            row["notes"] = (row["notes"] + " | " if row["notes"] else "") + f"inference write failed: {exc}"
 
                     print(
                         f"done | solved={result.success} | time={result.elapsed:.4f}s | "
@@ -145,6 +162,25 @@ def run_benchmark(
         write_chart_images(rows, charts_dir)
         print(f"[WRITE] Charts -> {charts_dir}", flush=True)
     return rows
+
+
+def _write_bc_inference_file(filepath, input_file: str, n: int, bc_stats: dict) -> None:
+    """Write backward chaining inference stats to a text file."""
+    filepath = Path(filepath)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    sep = "=" * 70
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(sep + "\n")
+        f.write(f"BACKWARD CHAINING INFERENCE STATS (Size {n}x{n}, Input: {input_file})\n")
+        f.write(sep + "\n")
+        f.write(f"  Expansions  : {bc_stats.get('expansions', 0)}\n")
+        f.write(f"  Generated   : {bc_stats.get('generated', 0)}\n")
+        f.write(f"  Backtracks  : {bc_stats.get('backtracks', 0)}\n")
+        f.write(f"  Inferences  : {bc_stats.get('inferences', 0)}\n")
+        notes = bc_stats.get("notes", "")
+        if notes:
+            f.write(f"  Notes       : {notes}\n")
+        f.write(sep + "\n")
 
 
 def _skipped_row(method: Method, input_file: str, n: int, note: str) -> Dict[str, object]:

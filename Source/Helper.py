@@ -192,3 +192,51 @@ def print_inference_results(inferred_facts, N):
 
     print(f"\nTotal inferred facts: {len(inferred_facts)}")
     print(sep)
+
+
+def write_inference_results_to_file(inferred_facts, N, filepath):
+    """Write forward chaining inference results to a text file."""
+    positive_vals = []
+    negated_vals = []
+    other_facts = []
+
+    for fact in sorted(list(inferred_facts)):
+        if fact.startswith("Not_Val_"):
+            negated_vals.append(fact)
+        elif fact.startswith("Val_"):
+            positive_vals.append(fact)
+        else:
+            other_facts.append(fact)
+
+    cell_domains = {}
+    for i in range(1, N + 1):
+        for j in range(1, N + 1):
+            pos_v = [int(f.split("_")[3]) for f in positive_vals if f.startswith(f"Val_{i}_{j}_")]
+            if pos_v:
+                cell_domains[(i, j)] = pos_v
+            else:
+                excluded = {int(f.split("_")[4]) for f in negated_vals if f.startswith(f"Not_Val_{i}_{j}_")}
+                cell_domains[(i, j)] = [v for v in range(1, N + 1) if v not in excluded]
+
+    sep = "=" * 70
+    filepath = Path(filepath)
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(sep + "\n")
+        f.write(f"INFERENCE RESULTS (Size {N}x{N})\n")
+        f.write(sep + "\n")
+        f.write(f"\n[Positive Val facts] ({len(positive_vals)} facts)\n")
+        for fact in positive_vals:
+            f.write(f"  + {fact}\n")
+        f.write("\n[Cell domains after inference]\n")
+        for (i, j), domain in sorted(cell_domains.items()):
+            status = "pinned" if len(domain) == 1 else ""
+            f.write(f"  Cell({i},{j}): {domain}  {status}\n")
+        f.write(f"\n[Negated Val facts / eliminations] ({len(negated_vals)} facts)\n")
+        for fact in negated_vals:
+            f.write(f"  - {fact}\n")
+        f.write(f"\n[Other inferred facts] ({len(other_facts)} facts)\n")
+        for fact in other_facts:
+            f.write(f"  ~ {fact}\n")
+        f.write(f"\nTotal inferred facts: {len(inferred_facts)}\n")
+        f.write(sep + "\n")

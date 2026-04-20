@@ -13,9 +13,9 @@ PROJECT_ROOT = SOURCE_DIR.parent
 DEFAULT_INPUT = SOURCE_DIR / "Inputs" / "input-01.txt"
 DEFAULT_OUTPUT = SOURCE_DIR / "Outputs" / "output-01.txt"
 DEFAULT_INPUT_DIR = SOURCE_DIR / "Inputs"
-DEFAULT_CSV = PROJECT_ROOT / "Docs" / "benchmark_results.csv"
-DEFAULT_SUMMARY = PROJECT_ROOT / "Docs" / "benchmark_summary.md"
-DEFAULT_CHARTS_DIR = PROJECT_ROOT / "Docs" / "charts"
+DEFAULT_CSV = PROJECT_ROOT / "Source" / "Outputs" / "benchmark_results.csv"
+DEFAULT_SUMMARY = PROJECT_ROOT / "Source" / "Outputs" / "benchmark_summary.md"
+DEFAULT_CHARTS_DIR = PROJECT_ROOT / "Source" / "Outputs" / "charts"
 
 
 def resolve_existing_path(path_str: str, *, prefer_source: bool = False) -> Path:
