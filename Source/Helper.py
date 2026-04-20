@@ -1,3 +1,4 @@
+from pathlib import Path
 import os 
 
 # check the solution is valid or not
@@ -69,9 +70,14 @@ def is_valid(futo, full_check=False):
     return True
 
 def print_output(futo, filename, output_dir="Outputs", echo_console=True):
-    fullpath = os.path.join(output_dir, filename)
-    os.makedirs(output_dir, exist_ok=True)
-    with open(fullpath, 'w') as f:
+    filename_path = Path(filename)
+    if filename_path.is_absolute() or filename_path.parent != Path('.'):
+        fullpath = filename_path
+    else:
+        fullpath = Path(output_dir) / filename_path
+
+    fullpath.parent.mkdir(parents=True, exist_ok=True)
+    with open(fullpath, 'w', encoding='utf-8') as f:
         for i in range(futo.N):
 
             # Row
